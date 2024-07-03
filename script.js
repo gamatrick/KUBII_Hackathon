@@ -32,6 +32,27 @@ dropZone.addEventListener('drop', (event) => {
           viewMode: 1, // Mode de visualisation
           autoCropArea: 1, // Zone de recadrage automatique
       });
+
+      // Ajouter un bouton de prévisualisation
+      const previewButton = document.createElement('button');
+      previewButton.innerText = 'Prévisualiser';
+      previewButton.addEventListener('click', () => {
+        cropper.getCroppedCanvas().toBlob((blob) => {
+          const previewImg = new Image();
+          const url = URL.createObjectURL(blob);
+          previewImg.src = url;
+          dropZone.innerHTML = '';
+          dropZone.appendChild(previewImg);
+
+          // Ajouter un bouton de téléchargement
+          const downloadButton = document.createElement('a');
+          downloadButton.innerText = 'Télécharger';
+          downloadButton.href = url;
+          downloadButton.download = 'image.jpg';
+          dropZone.appendChild(downloadButton);
+        });
+      });
+      dropZone.appendChild(previewButton);
       };
       reader.readAsDataURL(file);
     } else {
