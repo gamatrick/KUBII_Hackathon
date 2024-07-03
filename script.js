@@ -1,33 +1,42 @@
+// Sélection de la zone de dépôt
 const dropZone = document.getElementById('dropZone');
 
-dropZone.addEventListener('dragover', (event) => {
-  event.preventDefault();
-  dropZone.classList.add('hover');
+// Écouter l'événement de glisser-déposer
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+    const image = new Image();
+    image.src = event.target.result;
+    dropZone.innerHTML = '';
+    dropZone.appendChild(image);
+
+    // Fonction pour changer la taille de l'image
+    function changeSize(newWidth, newHeight) {
+      image.style.width = newWidth;
+      image.style.height = newHeight;
+    }
+
+    // Fonction pour ajouter du texte sur l'image
+    function addText(text, x, y) {
+      const textElement = document.createElement('div');
+      textElement.innerText = text;
+      textElement.style.position = 'absolute';
+      textElement.style.top = y + 'px';
+      textElement.style.left = x + 'px';
+      image.parentNode.appendChild(textElement);
+    }
+
+    // Exemple d'utilisation des fonctions
+    changeSize('200px', '200px');
+    addText('Sample Text', 50, 50);
+  }
+
+  reader.readAsDataURL(file);
 });
 
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('hover');
-});
-
-dropZone.addEventListener('drop', (event) => {
-  event.preventDefault();
-  dropZone.classList.remove('hover');
-
-  const files = event.dataTransfer.files;
-  if (files.length > 0) {
-    const file = files[0];
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        dropZone.innerHTML = '';
-        dropZone.appendChild(img);
-        img.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert('Veuillez déposer une image.');
-    }
-  }
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
 });
