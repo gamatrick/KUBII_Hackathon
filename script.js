@@ -1,7 +1,8 @@
 const dropZone = document.getElementById('dropZone');
 const croppedImage = document.getElementById('croppedImage');
+const toggleButton = document.getElementById('toggleButton');
 let cropper;
-let textAreaActive = false;
+let textOverlayActive = false;
 
 dropZone.addEventListener('dragover', (event) => {
   event.preventDefault();
@@ -15,7 +16,6 @@ dropZone.addEventListener('dragleave', () => {
 dropZone.addEventListener('drop', (event) => {
   event.preventDefault();
   dropZone.classList.remove('hover');
-
   const files = event.dataTransfer.files;
   if (files.length > 0) {
     const file = files[0];
@@ -30,51 +30,59 @@ dropZone.addEventListener('drop', (event) => {
 
         // Initialiser Cropper.js avec l'image
         cropper = new Cropper(img, {
-          aspectRatio: NaN,
-          viewMode: 1,
-          autoCropArea: 1,
+          aspectRatio: NaN, // Permettre un recadrage libre en hauteur et en largeur
+          viewMode: 1, // Mode de visualisation
+          autoCropArea: 1, // Zone de recadrage automatique
         });
 
         // Ajouter un bouton pour télécharger l'image une fois le recadrage terminé
         const fullscreenButton = document.createElement('button');
-        fullscreenButton.innerText = 'Télécharger l\'image';
+        fullscreenButton.innerText = "Télécharger l'image";
         fullscreenButton.addEventListener('click', () => {
-          cropper.getCroppedCanvas().toBlob((blob) => {
-            function downloadImage(imageUrl, fileName) {
-              const a = document.createElement('a');
-              a.href = imageUrl;
-              a.download = `S:\\école\\Sup_de_Vinci\\B1\\éval\\HACKATHON\\KUBII_Hackathon-main\\KUBII_Hackathon-main\\Slide${fileName}`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            }
+          const canvas = cropper.getCroppedCanvas();
+          drawTextOnCanvas(canvas, textOverlay);
+          canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            downloadImage(url, 'image_recadree.png');
           });
         });
         dropZone.appendChild(fullscreenButton);
 
-        // Ajouter une zone de texte modifiable et transparente sur l'image
-        const textArea = document.createElement('textarea');
-        textArea.placeholder = 'Saisir du texte...';
-        textArea.style.position = 'absolute';
-        textArea.style.top = '50%';
-        textArea.style.left = '50%';
-        textArea.style.transform = 'translate(-50%, -50%)';
-        textArea.style.backgroundColor = 'transparent';
-        textArea.style.border = 'none';
-        textArea.style.width = '50%';
-        textArea.style.height = 'auto';
-        textArea.style.display = 'none';
-        img.parentNode.style.position = 'relative';
-        img.parentNode.appendChild(textArea);
+        // Ajouter la zone de texte transparente
+        const textOverlay = document.createElement('div');
+        textOverlay.id = 'textOverlay';
+        textOverlay.contentEditable = true;
+        textOverlay.innerText = 'Texte modifiable';
+        textOverlay.style.display = 'none';
+        dropZone.appendChild(textOverlay);
 
-        // Ajouter un bouton pour activer/désactiver la zone de texte
-        const toggleTextAreaButton = document.createElement('button');
-        toggleTextAreaButton.innerText = 'Activer/ Désactiver texte';
-        toggleTextAreaButton.addEventListener('click', () => {
-          textAreaActive = !textAreaActive;
-          textArea.style.display = textAreaActive ? 'block' : 'none';
+        // Rendre la zone de texte déplaçable
+        let isDragging = false;
+        let offset = { x: 0, y: 0 };
+
+        textOverlay.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          offset.x = e.clientX - textOverlay.offsetLeft;
+          offset.y = e.clientY - textOverlay.offsetTop;
         });
-        dropZone.appendChild(toggleTextAreaButton);
+
+        document.addEventListener('mousemove', (e) => {
+          if (isDragging) {
+            textOverlay.style.left = `${e.clientX - offset.x}px`;
+            textOverlay.style.top = `${e.clientY - offset.y}px`;
+          }
+        });
+
+        document.addEventListener('mouseup', () => {
+          isDragging = false;
+        });
+
+        // Gérer l'activation et la désactivation de la zone de texte
+        toggleButton.addEventListener('click', () => {
+          textOverlayActive = !textOverlayActive;
+          textOverlay.style.display = textOverlayActive ? 'block' : 'none';
+          toggleButton.innerText = textOverlayActive ? 'Désactiver zone de texte' : 'Activer zone de texte';
+        });
       };
       reader.readAsDataURL(file);
     } else {
@@ -82,3 +90,22 @@ dropZone.addEventListener('drop', (event) => {
     }
   }
 });
+
+function drawTextOnCanvas(canvas, textOverlay) {
+  const ctx = canvas.getContext('2d');
+  const text = textOverlay.innerText;
+  const x = parseInt(textOverlay.style.left, 10) - dropZone.offsetLeft;
+  const y = parseInt(textOverlay.style.top, 10) - dropZone.offsetTop + parseInt(window.getComputedStyle(textOverlay).fontSize, 10); // Ajuster pour la hauteur du texte
+  ctx.font = `${window.getComputedStyle(textOverlay).fontSize} ${window.getComputedStyle(textOverlay).fontFamily}`;
+  ctx.fillStyle = 'black';
+  ctx.fillText(text, x, y);
+}
+
+function downloadImage(imageUrl, fileName) {
+  const a = document.createElement('a');
+  a.href = imageUrl;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}

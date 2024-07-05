@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glisser-Déposer une Photo</title>
+  <title>Modificateur d'image</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="dropZone">Déposez votre photo ici</div>
 
-  <!-- Inclure le fichier JavaScript -->
+  <!-- Inclure le fichier JavaScript et les boutons-->
   <script src="script.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.min.css">
+  <div id="croppedImage"></div>
+  <button id="toggleButton">Activer zone de texte</button>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet"/>
 </body>
 </html>
