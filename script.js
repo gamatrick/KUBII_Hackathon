@@ -1,6 +1,7 @@
 const dropZone = document.getElementById('dropZone');
 const croppedImage = document.getElementById('croppedImage');
 let cropper;
+let textAreaActive = false;
 
 dropZone.addEventListener('dragover', (event) => {
   event.preventDefault();
@@ -29,9 +30,9 @@ dropZone.addEventListener('drop', (event) => {
 
         // Initialiser Cropper.js avec l'image
         cropper = new Cropper(img, {
-          aspectRatio: NaN, // Permettre un recadrage libre en hauteur et en largeur
-          viewMode: 1, // Mode de visualisation
-          autoCropArea: 1, // Zone de recadrage automatique
+          aspectRatio: NaN,
+          viewMode: 1,
+          autoCropArea: 1,
         });
 
         // Ajouter un bouton pour télécharger l'image une fois le recadrage terminé
@@ -50,6 +51,30 @@ dropZone.addEventListener('drop', (event) => {
           });
         });
         dropZone.appendChild(fullscreenButton);
+
+        // Ajouter une zone de texte modifiable et transparente sur l'image
+        const textArea = document.createElement('textarea');
+        textArea.placeholder = 'Saisir du texte...';
+        textArea.style.position = 'absolute';
+        textArea.style.top = '50%';
+        textArea.style.left = '50%';
+        textArea.style.transform = 'translate(-50%, -50%)';
+        textArea.style.backgroundColor = 'transparent';
+        textArea.style.border = 'none';
+        textArea.style.width = '50%';
+        textArea.style.height = 'auto';
+        textArea.style.display = 'none';
+        img.parentNode.style.position = 'relative';
+        img.parentNode.appendChild(textArea);
+
+        // Ajouter un bouton pour activer/désactiver la zone de texte
+        const toggleTextAreaButton = document.createElement('button');
+        toggleTextAreaButton.innerText = 'Activer/ Désactiver texte';
+        toggleTextAreaButton.addEventListener('click', () => {
+          textAreaActive = !textAreaActive;
+          textArea.style.display = textAreaActive ? 'block' : 'none';
+        });
+        dropZone.appendChild(toggleTextAreaButton);
       };
       reader.readAsDataURL(file);
     } else {
