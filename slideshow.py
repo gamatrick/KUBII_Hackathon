@@ -9,7 +9,7 @@ import time
 import sys
 
 # initial variables
-imagePath = "S:\école\Sup_de_Vinci\B1\éval\HACKATHON\KUBII_Hackathon-main\KUBII_Hackathon\Slide"  # path to the current folder of images
+imagePath = "./Slide"  # path to the current folder of images
 print("Imagepath set to: " + imagePath);
 refreshInterval = 10 # number of seconds between images in a slideshow
 
